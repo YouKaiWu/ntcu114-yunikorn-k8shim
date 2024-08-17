@@ -1534,18 +1534,35 @@ func (ctx *Context) registerNodes(nodes []*v1.Node) ([]*v1.Node, error) {
 	for _, node := range nodes {
 		log.Log(log.ShimContext).Info("Registering node", zap.String("name", node.Name))
 		nodeStatus := node.Status
-		nodesToRegister = append(nodesToRegister, &si.NodeInfo{
-			NodeID: node.Name,
-			Action: si.NodeInfo_CREATE_DRAIN,
-			Attributes: map[string]string{
-				constants.DefaultNodeAttributeHostNameKey: node.Name,
-				constants.DefaultNodeAttributeRackNameKey: constants.DefaultRackName,
-				siCommon.NodeReadyAttribute:               strconv.FormatBool(hasReadyCondition(node)),
-			},
-			SchedulableResource: common.GetNodeResource(&nodeStatus),
-			OccupiedResource:    common.NewResourceBuilder().Build(),
-			ExistingAllocations: make([]*si.Allocation, 0),
-		})
+		if len(node.Spec.Taints) > 0{
+			nodesToRegister = append(nodesToRegister, &si.NodeInfo{
+				NodeID: node.Name,
+				Action: si.NodeInfo_CREATE_DRAIN,
+				Attributes: map[string]string{
+					constants.DefaultNodeAttributeHostNameKey: node.Name,
+					constants.DefaultNodeAttributeRackNameKey: constants.DefaultRackName,
+					siCommon.NodeReadyAttribute:               strconv.FormatBool(hasReadyCondition(node)),
+					"Taints": constants.True,
+				},
+				SchedulableResource: common.GetNodeResource(&nodeStatus),
+				OccupiedResource:    common.NewResourceBuilder().Build(),
+				ExistingAllocations: make([]*si.Allocation, 0),
+			})
+		}else{
+			nodesToRegister = append(nodesToRegister, &si.NodeInfo{
+				NodeID: node.Name,
+				Action: si.NodeInfo_CREATE_DRAIN,
+				Attributes: map[string]string{
+					constants.DefaultNodeAttributeHostNameKey: node.Name,
+					constants.DefaultNodeAttributeRackNameKey: constants.DefaultRackName,
+					siCommon.NodeReadyAttribute:               strconv.FormatBool(hasReadyCondition(node)),
+					"Taints": constants.False,
+				},
+				SchedulableResource: common.GetNodeResource(&nodeStatus),
+				OccupiedResource:    common.NewResourceBuilder().Build(),
+				ExistingAllocations: make([]*si.Allocation, 0),
+			})
+		}
 		pendingNodes[node.Name] = node
 	}
 
