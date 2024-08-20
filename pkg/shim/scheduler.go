@@ -26,6 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/informers"
 
+	"github.com/apache/yunikorn-core/pkg/custom"
 	"github.com/apache/yunikorn-k8shim/pkg/cache"
 	"github.com/apache/yunikorn-k8shim/pkg/client"
 	"github.com/apache/yunikorn-k8shim/pkg/common/utils"
@@ -207,6 +208,7 @@ func (ss *KubernetesShim) Run() error {
 }
 
 func (ss *KubernetesShim) Stop() {
+	custom.GetFairnessManager().SaveExcelFile()
 	log.Log(log.ShimScheduler).Info("stopping scheduler")
 	select {
 	case ss.stopChan <- struct{}{}:
