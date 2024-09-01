@@ -209,6 +209,7 @@ func (ss *KubernetesShim) Run() error {
 
 func (ss *KubernetesShim) Stop() {
 	custom.GetFairnessManager().SaveExcelFile()
+	custom.GetLoadBalanceManager().SaveExcelFile()
 	log.Log(log.ShimScheduler).Info("stopping scheduler")
 	select {
 	case ss.stopChan <- struct{}{}:
