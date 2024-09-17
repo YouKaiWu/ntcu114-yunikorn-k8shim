@@ -20,6 +20,7 @@ kind: ConfigMap
 metadata:
   name: yunikorn-configs
 data:
+  service.enableConfigHotRefresh: "true"
   queues.yaml: |
     partitions:
       - name: default
@@ -30,3 +31,9 @@ data:
         queues:
           - name: root
             submitacl: '*'
+            queues:
+            - name: testjob
+              properties:
+                application.sort.policy: fair
+        nodesortpolicy:
+            type: fair
